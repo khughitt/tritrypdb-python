@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 #-*- encoding: utf-8 -*-
 """
-Tryp2GO
+TriTrypDB gene file parser
 Keith Hughitt <khughitt@umd.edu>
-
-2012/12/09
 
 Processes a TriTrypDB gene file and generates several new files, each
 containing a different type of information.
@@ -67,13 +65,14 @@ def main():
 
         # Gene Ontology terms
         elif line.startswith("GO:"):
-            go_terms = line.split('\t')[0:5]
+            #go_terms = line.split('\t')[0:5]
+            go_rows.append([gene_id] + line.split('\t')[0:5])
 
         # End of gene description
         elif line.startswith("---"):
             gene_rows.append([gene_id, chromosome, start, stop])
             length_rows.append([gene_id, gene_length])
-            go_rows.append([gene_id, go_terms])
+            #go_rows.append([gene_id] + go_terms)
 
     # Write output files
     write_file(output_file % 'genes', input_file, species,
