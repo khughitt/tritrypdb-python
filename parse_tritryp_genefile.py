@@ -15,7 +15,7 @@ The files currently generated include:
 
 Examples
 --------
-./parse_trityp_genefile.py TriTrypDB-4.2_TcruziEsmeraldo-LikeGene.txt output/
+./parse_tritryp_genefile.py TriTrypDB-4.2_TcruziEsmeraldo-LikeGene.txt output/
 
 """
 import os
@@ -23,6 +23,7 @@ import re
 import sys
 import csv
 import datetime
+from operator import itemgetter
 
 def main():
     """Main"""
@@ -51,13 +52,24 @@ def main():
 
         # Chromosome number
         elif line.startswith("Chromosome"):
-            chromosome = int(line.split(':').pop().strip())
+            if (line.startswith("Chromosome: Not Assigned")):
+                chromosome = None
+            else:
+                chromosome = int(line.split(':').pop().strip())
 
         # Genomic Location
         elif line.startswith("Genomic Location"):
             match = re.search('([\d,]*) - ([\d,]*)', line).groups()
             start = int(match[0].replace(",", ""))
             stop = int(match[1].replace(",", ""))
+
+        # Gene Type
+        elif line.startswith("Gene Type"):
+            gene_type = line.split(":").pop().strip()
+
+        # Product Description
+        elif line.startswith("Product Description"):
+            description = line.split(":").pop().strip()
 
         # Transcript length
         elif line.startswith("Transcript Length:"):
@@ -70,14 +82,20 @@ def main():
 
         # End of gene description
         elif line.startswith("---"):
-            gene_rows.append([gene_id, chromosome, start, stop])
+            # skip gene if not assigned to a chromosome
+            if chromosome is None:
+                continue
+            gene_rows.append([gene_id, chromosome, start, stop, gene_type,
+                              description])
             length_rows.append([gene_id, gene_length])
-            #go_rows.append([gene_id] + go_terms)
+
+    # Sort gene info table by genomic location
+    gene_rows = sorted(gene_rows, key=itemgetter(1,2))
 
     # Write output files
     write_file(output_file % 'genes', input_file, species,
-               ["gene_id", "chromosome", "start", "stop"],
-               gene_rows)
+               ["gene_id", "chromosome", "start", "stop", "type",
+                "description"], gene_rows)
 
     write_file(output_file % 'gene_lengths', input_file, species,
                ["gene_id", "transcript_length"],
