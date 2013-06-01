@@ -59,9 +59,10 @@ def main():
 
         # Genomic Location
         elif line.startswith("Genomic Location"):
-            match = re.search('([\d,]*) - ([\d,]*)', line).groups()
+            match = re.search('([\d,]*) - ([\d,]*) \(([-+])\)', line).groups()
             start = int(match[0].replace(",", ""))
             stop = int(match[1].replace(",", ""))
+            strand = match[2]
 
         # Gene Type
         elif line.startswith("Gene Type"):
@@ -85,8 +86,8 @@ def main():
             # skip gene if not assigned to a chromosome
             if chromosome is None:
                 continue
-            gene_rows.append([gene_id, chromosome, start, stop, gene_type,
-                              description])
+            gene_rows.append([gene_id, chromosome, start, stop, strand,
+                              gene_type, description])
             length_rows.append([gene_id, gene_length])
 
     # Sort gene info table by genomic location
@@ -94,7 +95,7 @@ def main():
 
     # Write output files
     write_file(output_file % 'genes', input_file, species,
-               ["gene_id", "chromosome", "start", "stop", "type",
+               ["gene_id", "chromosome", "start", "stop", "strand", "type",
                 "description"], gene_rows)
 
     write_file(output_file % 'gene_lengths', input_file, species,
