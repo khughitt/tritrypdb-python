@@ -10,7 +10,7 @@ containing a different type of information.
 The files currently generated include:
 
     1. <xxx>_gene_list.csv
-    1. <xxx>_gene_lengths.csv
+    1. <xxx>_transcript_lengths.csv
     3. <xxx>_go_terms.csv
 
 Examples
@@ -74,7 +74,15 @@ def main():
 
         # Transcript length
         elif line.startswith("Transcript Length:"):
-            gene_length = int(line.split(':').pop().strip())
+            transcript_length = int(line.split(':').pop().strip())
+
+        # CDS length
+        elif line.startswith("CDS Length"):
+            val = line.split(':').pop().strip()
+            if val == "null":
+                cds_length = None
+            else:
+                cds_length = int(val)
 
         # Pseudogene?
         elif line.startswith("Is Pseudo:"):
@@ -91,8 +99,9 @@ def main():
             if chromosome is None:
                 continue
             gene_rows.append([gene_id, chromosome, start, stop, strand,
-                              gene_type, gene_length, is_pseudo, description])
-            length_rows.append([gene_id, gene_length])
+                              gene_type, transcript_length, cds_length, 
+                              is_pseudo, description])
+            length_rows.append([gene_id, transcript_length])
 
     # Sort gene info table by genomic location
     gene_rows = sorted(gene_rows, key=itemgetter(1,2))
@@ -100,9 +109,10 @@ def main():
     # Write output files
     write_file(output_file % 'genes', input_file, species,
                ["gene_id", "chromosome", "start", "stop", "strand", "type",
-                "transcript_length", "pseudogene", "description"], gene_rows)
+                "transcript_length", "cds_length", 
+                "pseudogene", "description"], gene_rows)
 
-    write_file(output_file % 'gene_lengths', input_file, species,
+    write_file(output_file % 'transcript_lengths', input_file, species,
                ["gene_id", "transcript_length"],
                length_rows)
 
