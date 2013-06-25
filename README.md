@@ -5,7 +5,7 @@ Overview
 A few small Python functions for working with [TriTrypDB](http://tritrypdb.org/tritrypdb/)
 data files. An alternate version written for the R programming language is 
 available at
-[https://www.github.com/khughitt/tritrypdb](github.com/khughitt/tritrypdb).
+[github.com/khughitt/tritrypdb](https://www.github.com/khughitt/tritrypdb).
 
 Installation
 ------------
